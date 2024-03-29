@@ -58,8 +58,7 @@
 '''
 ##########################################################################
 ##########################################################################
-
-
+import platform
 
 from multiprocessing.resource_sharer import stop
 from os import execv
@@ -71,7 +70,10 @@ from ttkthemes import ThemedStyle
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from matplotlib import pyplot as plt
-from pygrabber.dshow_graph import FilterGraph
+
+if platform.system() == "Windows":
+  from pygrabber.dshow_graph import FilterGraph
+
 from tkinter import filedialog as fd
 from functools import partial
 
@@ -99,7 +101,8 @@ cropping = False
 
 root = Tk()
 root.wm_title("AR4 Software Ver 4.3.1")
-root.iconbitmap(r'AR.ico')
+if platform.system() == "Windows":
+  root.iconbitmap(r'AR.ico')
 root.resizable(width=False, height=False)
 root.geometry('1536x792+0+0')
 root.runTrue = 0
@@ -282,7 +285,10 @@ def startup():
 def setCom(): 
   try:
     global ser    
-    port = "COM" + comPortEntryField.get()  
+    if platform.system() == "Linux":
+      port = comPortEntryField.get()
+    else:
+      port = "COM" + comPortEntryField.get()
     baud = 9600    
     ser = serial.Serial(port,baud)
     almStatusLab.config(text="SYSTEM READY", style="OK.TLabel")
@@ -305,8 +311,11 @@ def setCom():
 
 def setCom2(): 
   try:
-    global ser2    
-    port = "COM" + com2PortEntryField.get()  
+    global ser2
+    if platform.system() == "Linux":
+      port = com2PortEntryField.get()
+    else:
+      port = "COM" + com2PortEntryField.get()
     baud = 115200    
     ser2 = serial.Serial(port,baud)
     almStatusLab.config(text="SYSTEM READY", style="OK.TLabel")
@@ -315,7 +324,7 @@ def setCom2():
     tab8.ElogView.insert(END, Curtime+" - COMMUNICATIONS STARTED WITH ARDUINO IO BOARD")
     value=tab8.ElogView.get(0,END)
     pickle.dump(value,open("ErrorLog","wb"))
-  except:
+  except Exception as ex:
     #almStatusLab.config(text="UNABLE TO ESTABLISH COMMUNICATIONS WITH ARDUINO IO BOARD", style="Alarm.TLabel")
     #almStatusLab2.config(text="UNABLE TO ESTABLISH COMMUNICATIONS WITH ARDUINO IO BOARD", style="Alarm.TLabel")
     Curtime = datetime.datetime.now().strftime("%B %d %Y - %I:%M%p")
@@ -10659,12 +10668,14 @@ CalValuesLab.place(x=900, y=30)
 
 ### 6 BUTTONS################################################################
 #############################################################################
+camList = ["Select a Camera"]
+if platform.system() == "Windows":
+  graph = FilterGraph()
+  try:
+    camList = graph.get_input_devices()
+  except:
+    camList = ["Select a Camera"]
 
-graph = FilterGraph()
-try:
-  camList = graph.get_input_devices()
-except:
-  camList = ["Select a Camera"]
 visoptions=StringVar(tab6)
 visoptions.set("Select a Camera")
 try:

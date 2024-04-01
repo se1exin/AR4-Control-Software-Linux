@@ -698,8 +698,9 @@ def executeRow():
     if (moveInProc == 1):
       moveInProc == 2
     tabIndex = command.find("Tab-")
-    tabNum = ("Tab Number " + str(command[tabIndex+4:]) + "\r\n").encode('utf-8')
-    index = tab1.progView.get(0, "end").index(tabNum)
+    tabNum = ("Tab Number " + str(command[tabIndex+4:])).encode('utf-8')
+    tabs = [item.strip() for item in tab1.progView.get(0, "end")]
+    index = tabs.index(tabNum)
     tab1.progView.selection_clear(0, END)
     tab1.progView.select_set(index)  
 
